@@ -2,11 +2,14 @@ from fastapi import FastAPI, Query
 from datetime import datetime
 from pymongo import MongoClient
 import uuid
+import os
 
 app = FastAPI()
 
-# Configuración de la conexión a MongoDB
-client = MongoClient("mongodb://localhost:27017/")
+# Configuración de la conexión a MongoDB usando variables de entorno
+mongodb_host = os.getenv('MONGODB_HOST', 'localhost')
+mongodb_port = int(os.getenv('MONGODB_PORT', 27017))
+client = MongoClient(f"mongodb://{mongodb_host}:{mongodb_port}/")
 db = client["python_app"]
 collection = db["listas_no_ordenadas"]
 
@@ -26,7 +29,7 @@ def lista_ordenada(lista_no_ordenada: str = Query(..., alias="lista-no-ordenada"
     return respuesta
 
 @app.get("/guardar-lista-no-ordenada")
-def guardar_lista(lista_no_ordenada: str = Query(..., alias="lista-no_ordenada")):
+def guardar_lista(lista_no_ordenada: str = Query(..., alias="lista-no-ordenada")):
     # Convertir la lista de string a una lista de enteros
     lista_no_ordenada = lista_no_ordenada.strip('[]').split(',')
     lista_no_ordenada = [int(i) for i in lista_no_ordenada]
